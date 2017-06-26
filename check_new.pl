@@ -74,7 +74,7 @@ while (@line=<DATA2>) {
         foreach $platform1 (@adname){
           $adname_alias = $adname2{"$platform1"};
           @counter_select = grep /$counter/,@line;
-          @adname_counter_select = grep /\"platform\":\"$adname_alias/,@counter_select;
+          @adname_counter_select = grep /platform\\\":\\\"$adname_alias/,@counter_select;
           $number = @adname_counter_select;
           print DATA3 "$platform1,$adname_alias,$counter,$number\n";
         }
@@ -83,7 +83,7 @@ while (@line=<DATA2>) {
         foreach $platform2 (@adname){
           $adname_alias = $adname2{"$platform2"};
           @counter_select = grep /$counter/,@line;
-          @adname_counter_select = grep /\"platform\":\"$adname_alias/,@counter_select;
+          @adname_counter_select = grep /platform\\\":\\\"$adname_alias/,@counter_select;
           $number = @adname_counter_select;
           print DATA3 "$platform2,$adname_alias,$counter,$number\n";
         }
