@@ -63,6 +63,7 @@ my %adname2 = (
 "tapjoy" => 23
 );
 
+
 use Switch;
 open(DATA2,"<line_select.log");
 open(DATA3,">>sum.log");
@@ -70,38 +71,34 @@ while (@line=<DATA2>) {
   foreach $counter (@counter_id){
     switch($counter){
       case "ad_adview" {
-        foreach (@adname){
-          $adname_alias = $adname2{"$_"};
+        foreach $platform1 (@adname){
+          $adname_alias = $adname2{"$platform1"};
           @counter_select = grep /$counter/,@line;
-          @adname_counter_select = grep /platform\\\":\\\"$adname_alias/,@counter_select;
-          $number = $#adname_counter_select;
-          $number += 1;
-          print DATA3 "$_,$adname_alias,$counter,$number\n";
+          @adname_counter_select = grep /\"platform\":\"$adname_alias/,@counter_select;
+          $number = @adname_counter_select;
+          print DATA3 "$platform1,$adname_alias,$counter,$number\n";
         }
       }
       case "ad_adshow" {
-        foreach (@adname){
-          $adname_alias = $adname2{"$_"};
+        foreach $platform2 (@adname){
+          $adname_alias = $adname2{"$platform2"};
           @counter_select = grep /$counter/,@line;
-          @adname_counter_select = grep /platform\\\":\\\"$adname_alias/,@counter_select;
-          $number = $#adname_counter_select;
-          $number += 1;
-          print DATA3 "$_,$adname_alias,$counter,$number\n";
+          @adname_counter_select = grep /\"platform\":\"$adname_alias/,@counter_select;
+          $number = @adname_counter_select;
+          print DATA3 "$platform2,$adname_alias,$counter,$number\n";
         }
       }
       else {
-        foreach (@adname){
+        foreach $platform3 (@adname){
           @counter_select = grep /$counter/,@line;
-          @adname_counter_select = grep /\\\"$_\\\"/,@counter_select;
-          $number = $#adname_counter_select;
-          $number += 1;
-          print DATA3 "$_,$counter,$number\n";
+          @adname_counter_select = grep /\\\"$platform3\\\"/,@counter_select;
+          $number = @adname_counter_select;
+          print DATA3 "$platform3,$counter,$number\n";
         }
       }
     }
   }
 }
-
 $bbb = localtime();
 print AAA $bbb;
 close ( AAA );
