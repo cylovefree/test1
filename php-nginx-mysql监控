@@ -1,0 +1,40 @@
+#!/bin/bash
+
+for check_log in $(cat /root/cy/checklog_list);do
+        inotifywait -m -r -e modify,delete,create $check_log |while read eventName dirName fileName; do
+        echo "$eventName,$dirName,$fileName" >> /var/log/inotifywait_errorlog.log
+        My_Mail_Subject="errorlog"
+        My_Time=$(date "+%Y-%m-%d %H:%M:%S")
+        My_IP=$(ip addr |grep eth0 |grep inet |awk '{print $2}')
+        My_Mail_Body="$My_IP, $My_Time, $check_log, there are some new errorlogs,please check them!"
+        My_Mail_Address1="shecx@soulgame.com"
+        My_Mail_Address2="chenyk@soulgame.com"
+        My_Mail_Address3="cuiy@soulgame.com"
+        #/usr/bin/php /usr/local/nagios/PHPMailer-master/mail.php "$My_Mail_Subject" "$My_Mail_Body" "$My_Mail_Address1"
+        #/usr/bin/php /usr/local/nagios/PHPMailer-master/mail.php "$My_Mail_Subject" "$My_Mail_Body" "$My_Mail_Address2"
+        /usr/bin/php /usr/local/nagios/PHPMailer-master/mail.php "$My_Mail_Subject" "$My_Mail_Body" "$My_Mail_Address3"
+        done
+done
+
+inotifywait -m -r -e modify,delete,create /data/logs/wjsj_nginx_logs/error_log |while read eventName dirName fileName; do
+  cd /data/logs/wjsj_nginx_logs/error_log
+  myday=$(date +%Y%m%d)
+  file_checked="wjsj_nginx_error_logs.$myday"
+  if [[ -f ./file_checked ]]; then
+    error_sign1=$(tail -n 1 $file_checked |awk -F " " '{print $4}')
+    sleep 5
+    error_sign2=$(tail -n 1 $file_checked |awk -F " " '{print $4}')
+    if [[ $error_sign1 != $error_sign2 ]]; then
+      My_Mail_Subject="nginx_errorlog"
+      My_Time=$(date "+%Y-%m-%d %H:%M:%S")
+      My_IP=$(ip addr |grep eth0 |grep inet |awk '{print $2}')
+      My_Mail_Body="$My_IP, $My_Time, there are some new errors,please check them!"
+      My_Mail_Address1="shecx@soulgame.com"
+      My_Mail_Address2="chenyk@soulgame.com"
+      My_Mail_Address3="cuiy@soulgame.com"
+      #/usr/bin/php /usr/local/nagios/PHPMailer-master/mail.php "$My_Mail_Subject" "$My_Mail_Body" "$My_Mail_Address1"
+      #/usr/bin/php /usr/local/nagios/PHPMailer-master/mail.php "$My_Mail_Subject" "$My_Mail_Body" "$My_Mail_Address2"
+      /usr/bin/php /usr/local/nagios/PHPMailer-master/mail.php "$My_Mail_Subject" "$My_Mail_Body" "$My_Mail_Address3"
+    fi
+  fi
+done
