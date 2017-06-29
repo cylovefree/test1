@@ -1,0 +1,47 @@
+#!/bin/bash
+### just for collecting and cleaning logs about game_4x
+#set -x
+log_path="/data/log/api"
+cd $log_path
+
+rsync_log()
+{
+  ssh root@10.211.55.7 "chown -R www-data.www-data /data/game_log"
+  rsync -avcrlt --bwlimit=2048 $1 gpsupdate@10.211.55.7::GamelogSelect/ --password-file=$log_path/rsync_global_server_update.pass
+  ssh root@10.211.55.7 "cd /data/game_log/ && tar zxvf /data/game_log/${1##*/} && rm -rf /data/game_log/${1##*/}"
+  echo "$1,  ${1%/*}" >> /data/out.txt
+}
+
+### 年月日
+for (( i = 1; i < 15; i++ )); do
+  date_select=$(date -d "-$i day" +%Y%m%d)
+  for filename in $(find ./ -type f |grep $date_select |grep -v -E "\-php1$");do
+    mv $filename $filename-php1
+    tar zcvf $filename-php1.tar.gz $filename-php1
+    rsync_log $filename-php1.tar.gz
+    rm $filename-php1.tar.gz
+  done
+done
+
+find ./ -type f |grep $(date -d "-15 day" +%Y%m%d) |xargs rm -rf
+
+### 年月
+for (( i = 1; i < 3; i++ )); do
+  date_select=$(date -d "-$i month" +%Y%m)
+  for filename in $(find ./ -type f |grep $date_select |grep -v -E "\-php1$");do
+    mv $filename $filename-php1
+    tar zcvf $filename-php1.tar.gz $filename-php1
+    rsync_log $filename-php1.tar.gz
+    rm $filename-php1.tar.gz
+  done
+done
+find ./ -type f |grep $(date -d "-3 month" +%Y%m) |xargs rm -rf
+
+### 非以上
+for filename in $(find ./ -type f |grep -v `date +%Y` |grep -v "rsync_global_server_update.pass" |grep -v "select.sh" |grep -v -E "\-php1$");do
+    mv $filename $filename-php1
+    tar zcvf $filename-php1.tar.gz $filename-php1
+    rsync_log $filename-php1.tar.gz
+    rm $filename-php1.tar.gz
+    mv $filename-php1 $filename
+done
