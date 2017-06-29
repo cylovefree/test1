@@ -1,0 +1,35 @@
+#!/bin/bash
+### for sum the tps/qps
+redis_port="6380"
+redis_pass="4xHg8sdhHG9jHghsd45Fa"
+redis_host="127.0.0.1"
+
+time_stamp1=$(redis-cli -h $redis_host -p $redis_port -a $redis_pass info |grep uptime_in_seconds |awk -F ":" '{print $2}')
+process_finished1=$(redis-cli -h $redis_host -p $redis_port -a $redis_pass info |grep total_commands_processed |awk -F ":" '{print $2}')
+
+sleep 5
+time_stamp2=$(redis-cli -h $redis_host -p $redis_port -a $redis_pass info |grep uptime_in_seconds |awk -F ":" '{print $2}')
+process_finished2=$(redis-cli -h $redis_host -p $redis_port -a $redis_pass info |grep total_commands_processed |awk -F ":" '{print $2}')
+
+time_diff=`echo "$time_stamp2 $time_stamp1" | awk '{print $1-$2}'`
+process_diff=`echo "$process_finished2 $process_finished1" | awk '{print $1-$2}'`
+
+tps_real=`echo "$process_diff $time_diff" | awk '{printf("%.2f",$1/$2)}'`
+tps_sum=`echo "$process_diff" | awk '{printf("%.2f",$1/5)}'`
+
+tps_min_limit="100"
+tps_max_limit=""
+if [[ $tps_real -lt $tps_min_limit ]]; then
+    My_Mail_Subject="redis qps"
+    My_Time=$(date "+%Y-%m-%d %H:%M:%S")
+    My_IP=$(ip addr |grep eth0 |grep inet |awk '{print $2}')
+    My_Mail_Body="$My_IP, $My_Time, redis server qps is $tps_real query per second!"
+    My_Mail_Address1="shecx@soulgame.com"
+    My_Mail_Address2="chenyk@soulgame.com"
+    My_Mail_Address3="cuiy@soulgame.com"
+    #/usr/bin/php /usr/local/nagios/PHPMailer-master/mail.php "$My_Mail_Subject" "$My_Mail_Body" "$My_Mail_Address1"
+    #/usr/bin/php /usr/local/nagios/PHPMailer-master/mail.php "$My_Mail_Subject" "$My_Mail_Body" "$My_Mail_Address2"
+    /usr/bin/php /usr/local/nagios/PHPMailer-master/mail.php "$My_Mail_Subject" "$My_Mail_Body" "$My_Mail_Address3"
+elif [[ $tps_real -gt  ]]; then
+  #statements
+fi
