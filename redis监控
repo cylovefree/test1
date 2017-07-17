@@ -1,7 +1,5 @@
 #!/bin/bash
-#redis_port="`cat redis-server.config |`"
-#redis_pass="4xHg8sdhHG9jHghsd45Fa"
-#redis_host="127.0.0.1"
+
 source /etc/profile
 source /root/.bashrc
 
